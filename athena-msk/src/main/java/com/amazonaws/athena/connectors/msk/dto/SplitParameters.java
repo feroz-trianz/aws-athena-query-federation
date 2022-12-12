@@ -31,6 +31,11 @@ public class SplitParameters
     public final long startOffset;
     public final long endOffset;
 
+    // For debug purpose
+    public long pulled = 0;
+    public long spilled = 0;
+    public String info = "";
+
     /**
      * These parameters need to be set while creating the split and will be used when retrieving records in RecordHandler class.
      * @param topic
@@ -51,6 +56,26 @@ public class SplitParameters
     {
         return String.format("[topic: %s, partition: %s, start-offset: %s, end-offset: %s]",
                 topic, partition, startOffset, endOffset
+        );
+    }
+
+    /**
+     * For debug insight.
+     * To know what happens in the RecordHandler across in all the splits.
+     * We write log message as comma separated value with intention to create a csv.
+     * Simply in the Cloudwatch log we will search by SplitParameters then we will
+     * get these related log messages in once place and download as csv, great!
+     *
+     * The header of the csv file is:
+     * debug,topic,partition,start_offset,end_offset,pulled,spilled,missing,info
+     *
+     * Note that the header missing means - we should not spill these
+     */
+    public String debug()
+    {
+        return String.format(
+            "SplitParameters,%s,%s,%s,%s,%s,%s,%s,%s %n",
+            topic, partition, startOffset, endOffset, pulled, spilled, pulled - spilled, info
         );
     }
 }
